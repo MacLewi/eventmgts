@@ -13,7 +13,6 @@ export default function EventDetails() {
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(5);
   const [hasReviewed, setHasReviewed] = useState(false);
-  const isValidNumber = value !== "" && !isNaN(value);
 
   const [toast, setToast] = useState({ open: false, type: 'info', message: '' });
 
@@ -56,7 +55,7 @@ export default function EventDetails() {
     }
   }
 
-  async function registerForEvent() {
+  async function register() {
     try {
       await axios.post(`/api/registrations/${id}/register`);
       showToast('success', 'Registered! Check your email for confirmation.');
@@ -72,7 +71,8 @@ export default function EventDetails() {
     }).format(amount || 0);
 
   // ✅ Buy Ticket → redirect with event data
-  async function buyTicket(event) {
+    async function buyTicket(event) {
+    console.log(event);
     if (!user) {
       showToast('warning', 'Please login first');
       return;
@@ -81,7 +81,7 @@ export default function EventDetails() {
     if (!event) return;
 
 
-    const res = await axios.post('/api/mpesa/payments/buy', { event: event });
+    const res = await axios.post('/api/mpesa/payments/buy', { event:event});
   }
 
   function shareEvent() {
@@ -89,7 +89,7 @@ export default function EventDetails() {
     if (navigator.share) {
       navigator
         .share({ title: event.title, text: event.description, url })
-        .catch(() => { });
+        .catch(() => {});
     } else {
       navigator.clipboard.writeText(url);
       alert('Event link copied!');
@@ -166,12 +166,12 @@ END:VCALENDAR`;
           </div>
 
           <div className="flex gap-2 mt-3">
-            <button className="btn" onClick={registerForEvent} disabled={!user}>
-              Register for Event
+            <button className="btn" onClick={register} disabled={!user}>
+              Register
             </button>
 
             {/* ✅ Buy Ticket → goes to checkout */}
-            <button className="btn" onClick={() => buyTicket(event)} disabled={!user && !isValidNumber}>
+            <button className="btn" onClick={() => buyTicket(event)} disabled={!user}>
               Buy Ticket{' '}
               {event.price ? `(${formatKES(event.price)})` : '(Free)'}
             </button>
@@ -180,12 +180,6 @@ END:VCALENDAR`;
               Share
             </button>
 
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder="Enter a number"
-            />
 
             <button className="btn-outline" onClick={downloadIcs}>
               Add to Calendar
